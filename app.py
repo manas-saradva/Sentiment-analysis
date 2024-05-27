@@ -1,12 +1,7 @@
 import streamlit as st
-import joblib
-import tensorflow.compat.v1 as tf
+import torch
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
 from scipy.special import softmax
-
-# Suppress TensorFlow warning messages
-tf.disable_v2_behavior()
-tf.reset_default_graph()
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Tweet Sentiment Analysis", page_icon="📊", layout="wide")
@@ -49,7 +44,7 @@ def predict_sentiment(text):
         text = preprocess(text)
         encoded_input = tokenizer(text, return_tensors='pt')
         output = model(**encoded_input)
-        scores = output[0][0].detach().numpy()
+        scores = output.logits[0].detach().numpy()
         scores = softmax(scores)
 
         ranking = scores.argsort()[::-1]
